@@ -2,7 +2,7 @@
 const Users = (props: any) => {
   return props.data.map((x: any) => {
     return (
-      <div key={Math.floor(Math.random() * 10000000)} className="flex-center">
+      <div key={Math.floor(Math.random() * 10000000)} style={{ margin: '1em' }}>
         <p>{x.name}</p>
         <img src="http://via.placeholder.com/100" alt="avatar" />
       </div>

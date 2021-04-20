@@ -1,36 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
-import { fetchOnLoad } from "../utils/actions";
-import AddUser from "./AddUser";
-import Users from "./Users";
-import { useStore, ConnectHoc } from "../pmr/pmrReactHooks";
-import { State, StateSlice } from "../pmr/interfaces";
+import React from 'react';
+import { fetchOnLoad } from '../pmr/actions';
+import AddUser from './AddUser';
+import Users from './Users';
+import { ConnectHoc } from 'pmrjs';
+import { useStore } from '../pmr/store';
+import { StoreState } from '../pmr/interfaces';
 
 const UserComponent = () => {
-  // console.log("ran image comp");
   const [count] = useStore(UserComponent);
-  // console.log(count);
   React.useEffect(() => {
     fetchOnLoad();
   }, []);
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: 'center' }}>
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          maxWidth: "1080px",
-          margin: "0 auto",
-          // backgroundColor: "red",
-          flexWrap: "wrap",
+          display: 'flex',
+          justifyContent: 'center',
+          maxWidth: '1080px',
+          margin: '0 auto',
+          flexWrap: 'wrap',
         }}
       >
         {count && (count as any).loading ? (
-          "Loading"
+          'Loading'
         ) : count && (count as any).users && (count as any).users.length ? (
           <Users data={(count as any).users} />
         ) : (
-          "no data"
+          'no data'
         )}
       </div>
       <AddUser />
@@ -38,10 +36,9 @@ const UserComponent = () => {
   );
 };
 
-const mapState: StateSlice = (state: State) => ({
+const mapState = (state: StoreState) => ({
   users: state.users,
   loading: state.loading,
-  auth: state.test.newTest.isAuth,
 });
 
-export default ConnectHoc(UserComponent, mapState);
+export default ConnectHoc(UserComponent, mapState as any);
