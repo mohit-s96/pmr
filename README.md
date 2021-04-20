@@ -1,5 +1,11 @@
 # PMR JS
 
+## Demo
+
+Github repository for demo website [here](https://github.com/msx47/reddit-lite)
+
+Live demo [here](https://redditlite-6f953.web.app/)
+
 ### Experimental state management library for react
 
 Redux like state management in react with less boilerplate and a simple to use hook.
