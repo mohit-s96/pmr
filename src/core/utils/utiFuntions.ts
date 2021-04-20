@@ -1,4 +1,4 @@
-import { StoreState } from "../pmr/interfaces";
+type StoreState = {};
 
 export function objectComparator() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -6,14 +6,19 @@ export function objectComparator() {
   const objHeirarchy: Array<string> = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const objDiff = (newState: any, oldState: any) => {
+    if (newState === null || newState === undefined) {
+      return;
+    }
     // console.log(newState, oldState);
     if (
-      typeof newState !== "object" ||
-      typeof oldState !== "object" ||
+      typeof newState !== 'object' ||
+      typeof oldState !== 'object' ||
       !newState ||
       !oldState
     ) {
-      throw new Error("Arguments to objDiff must be object type");
+      console.log(newState, oldState);
+
+      throw new Error('Arguments to objDiff must be object type');
     }
     if (Array.isArray(newState) && Array.isArray(oldState)) {
       if (newState.length !== oldState.length) {
@@ -22,7 +27,7 @@ export function objectComparator() {
         newState.forEach((item: StoreState, i) => {
           if (Array.isArray(item)) {
             objDiff(item as StoreState, oldState[i] as StoreState);
-          } else if (typeof item !== "object") {
+          } else if (typeof item !== 'object') {
             if (item !== oldState[i]) {
               diffState = setNestedKeys(diffState, objHeirarchy, true);
             }
@@ -34,7 +39,7 @@ export function objectComparator() {
     } else {
       for (const key in newState) {
         if (oldState[key] !== undefined && oldState[key] !== null) {
-          if (typeof newState[key] !== "object") {
+          if (typeof newState[key] !== 'object') {
             if (newState[key] !== oldState[key]) {
               if (!objHeirarchy.length) {
                 diffState[key] = true;
@@ -97,7 +102,7 @@ export function deepCopyObject(target: any, obj: any) {
   for (const key in obj) {
     if (Array.isArray(obj[key])) {
       copy[key] = deepCopyArray([], obj[key]);
-    } else if (typeof obj[key] !== "object") {
+    } else if (typeof obj[key] !== 'object') {
       copy[key] = obj[key];
     } else {
       copy[key] = deepCopyObject({}, obj[key]);
@@ -115,7 +120,7 @@ function deepCopyArray(target: any, array: any) {
   array.forEach((key: any, i: string | number) => {
     if (Array.isArray(key)) {
       copy[i] = deepCopyArray([], key);
-    } else if (typeof key !== "object") {
+    } else if (typeof key !== 'object') {
       copy[i] = key;
     } else {
       copy[i] = deepCopyObject({}, key);
@@ -130,7 +135,7 @@ export function getSkeletonObject(objArray: any) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let prevObj: any;
   objArray.forEach((string: string) => {
-    const splitString = string.split(".");
+    const splitString = string.split('.');
 
     splitString.forEach((obj, i) => {
       if (i > 0) {
@@ -142,20 +147,14 @@ export function getSkeletonObject(objArray: any) {
 }
 
 export function getObjectMatchFromFunctionString(str: string) {
-  const match = /([a-zA-Z0-9_]*\.[a-zA-Z0-9_]*)/;
-
-  const splitFunction = str.split(" ");
-
-  const removedCommas = splitFunction.map((n) =>
-    n.split(",").length > 1 ? n.split(",")[0] : n
-  );
-
-  const filteredObjectsArray = removedCommas
-    .filter((n) => match.test(n))
-    .map((n) => n.split("\n")[0])
-    .map((n) => n.split(".").slice(1).join("."));
-
-  return filteredObjectsArray;
+  const splitFunction = str.split(' ');
+  let arr = [];
+  if (splitFunction.length < 2) {
+    arr = minfiedFunction(str);
+  } else {
+    arr = nonMinifiedFunction(str);
+  }
+  return arr;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -172,7 +171,7 @@ export function compareArrayToObject(obj: any, array: any) {
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function populateObjectFromArray(target: any, string: any) {
-  const splitString = string.split(".");
+  const splitString = string.split('.');
   let res = false;
   if (splitString.length < 2) {
     res = Boolean(target[splitString[0]]);
@@ -184,7 +183,7 @@ export function populateObjectFromArray(target: any, string: any) {
       if (target[x] && splitString[i + 1]) {
         res = populateObjectFromArray(
           target[x],
-          splitString.slice(1).join(".")
+          splitString.slice(1).join('.')
         );
       }
     });
@@ -196,7 +195,7 @@ export function populateObjectFromArray(target: any, string: any) {
 // console.log(compareArrayToObject(t2, t1));
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function populateObjectFromArray_(target: any, string: any) {
-  const splitString = string.split(".");
+  const splitString = string.split('.');
   let res;
   if (splitString.length < 2) {
     res = target[splitString[0]];
@@ -207,7 +206,7 @@ export function populateObjectFromArray_(target: any, string: any) {
       if (target[x] && splitString[i + 1]) {
         res = populateObjectFromArray_(
           target[x],
-          splitString.slice(1).join(".")
+          splitString.slice(1).join('.')
         );
       }
     });
@@ -228,6 +227,40 @@ export function getStateSlice(data: any, array: any) {
   }
 
   return returnData;
+}
+
+function nonMinifiedFunction(str: string) {
+  const match = /([a-zA-Z0-9_]*\.[a-zA-Z0-9_]*)/;
+  const splitFunction = str.split(' ');
+  const removedCommas = splitFunction.map(n =>
+    n.split(',').length > 1 ? n.split(',')[0] : n
+  );
+
+  const filteredObjectsArray = removedCommas
+    .filter(n => match.test(n))
+    .map(n => n.split('\n')[0])
+    .map(n =>
+      n
+        .split('.')
+        .slice(1)
+        .join('.')
+    );
+  return filteredObjectsArray;
+}
+function minfiedFunction(str: string) {
+  let x = str.split('return');
+  const y = x[1].slice(1, -2);
+  x = y.split(',');
+  x = x.map(n => {
+    return n.split(':')[1];
+  });
+  x = x.map(n =>
+    n
+      .split('.')
+      .slice(1)
+      .join('.')
+  );
+  return x;
 }
 
 //   const obj2 = {

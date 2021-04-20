@@ -1,4 +1,4 @@
-import ReactDOM from "react-dom";
-import App from "./App";
+import { createStore } from './core/pmrLibrary';
+import { ConnectHoc, createStoreHook } from './core/react/pmrReactHooks';
 
-ReactDOM.render(<App />, document.getElementById("root"));
+export { createStore, createStoreHook, ConnectHoc };
